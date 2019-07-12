@@ -8,7 +8,7 @@ QT       += core gui xml sql concurrent network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-TARGET      = AlarmDisp
+TARGET      = AlarmManagerSystem
 TEMPLATE    = app
 MOC_DIR     = temp/moc
 RCC_DIR     = temp/rcc

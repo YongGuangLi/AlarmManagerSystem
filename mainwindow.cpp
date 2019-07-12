@@ -213,19 +213,19 @@ void MainWindow::initAlarmSence()
     pushButton_SwitchStatusCheck = new PushButton(QString::fromUtf8("开关分合\n状态检查"));
     pushButton_SwitchStatusCheck->setIcon(":/Resources/Image/Scene/switchstatuscheck.png");
     pushButton_SwitchStatusCheck->setFixedSize(100,110);
-    connect(pushButton_SwitchStatusCheck, SIGNAL(clicked()), this, SLOT(switchAlarmPage()));
+    connect(pushButton_SwitchStatusCheck, SIGNAL(clicked()), this, SLOT(slot_changeAlarmSence()));
     ui->gridLayout_3->addWidget(pushButton_SwitchStatusCheck, 1, 0);
 
     pushButton_SwitchActionTimeCheck  = new PushButton(QString::fromUtf8("开关分合动\n作时间检验"));
     pushButton_SwitchActionTimeCheck->setIcon(":/Resources/Image/Scene/switchactiontimecheck.png");
     pushButton_SwitchActionTimeCheck->setFixedSize(100,110);
-    connect(pushButton_SwitchActionTimeCheck, SIGNAL(clicked()), this, SLOT(switchAlarmPage()));
+    connect(pushButton_SwitchActionTimeCheck, SIGNAL(clicked()), this, SLOT(slot_changeAlarmSence()));
     ui->gridLayout_3->addWidget(pushButton_SwitchActionTimeCheck, 1, 1);
 
     pushButton_PrimaryEquipmentAbnormal = new PushButton(QString::fromUtf8("一次设备异常"));
     pushButton_PrimaryEquipmentAbnormal->setIcon(":/Resources/Image/Scene/primaryequipmentabnormal.png");
     pushButton_PrimaryEquipmentAbnormal->setFixedSize(100,110);
-    connect(pushButton_PrimaryEquipmentAbnormal, SIGNAL(clicked()), this, SLOT(switchAlarmPage()));
+    connect(pushButton_PrimaryEquipmentAbnormal, SIGNAL(clicked()), this, SLOT(slot_changeAlarmSence()));
     ui->gridLayout_3->addWidget(pushButton_PrimaryEquipmentAbnormal, 1, 2);
 
 
@@ -238,49 +238,49 @@ void MainWindow::initAlarmSence()
     pushButton_SecondaryEquipmentAbnormal = new PushButton(QString::fromUtf8("二次设备异常"));
     pushButton_SecondaryEquipmentAbnormal->setIcon(":/Resources/Image/Scene/secondaryequipmentabnormal.png");
     pushButton_SecondaryEquipmentAbnormal->setFixedSize(100,110);
-    connect(pushButton_SecondaryEquipmentAbnormal, SIGNAL(clicked()), this, SLOT(switchAlarmPage()));
+    connect(pushButton_SecondaryEquipmentAbnormal, SIGNAL(clicked()), this, SLOT(slot_changeAlarmSence()));
     ui->gridLayout_3->addWidget(pushButton_SecondaryEquipmentAbnormal, 3, 0);
 
     pushButton_SingleBayProtectAction = new PushButton(QString::fromUtf8("保护动作"));
     pushButton_SingleBayProtectAction->setIcon(":/Resources/Image/Scene/singlebayprotectaction.png");
     pushButton_SingleBayProtectAction->setFixedSize(100,110);
-    connect(pushButton_SingleBayProtectAction, SIGNAL(clicked()), this, SLOT(switchAlarmPage()));
+    connect(pushButton_SingleBayProtectAction, SIGNAL(clicked()), this, SLOT(slot_changeAlarmSence()));
     ui->gridLayout_3->addWidget(pushButton_SingleBayProtectAction, 3, 1);
 
     pushButton_RemoteControlProcess = new PushButton(QString::fromUtf8("遥控过程分析"));
     pushButton_RemoteControlProcess->setIcon(":/Resources/Image/Scene/remotecontrolprocess.png");
     pushButton_RemoteControlProcess->setFixedSize(100,110);
-    connect(pushButton_RemoteControlProcess, SIGNAL(clicked()), this, SLOT(switchAlarmPage()));
+    connect(pushButton_RemoteControlProcess, SIGNAL(clicked()), this, SLOT(slot_changeAlarmSence()));
     ui->gridLayout_3->addWidget(pushButton_RemoteControlProcess, 3, 2);
 
     pushButton_StationTimeSyncAbnormol = new PushButton(QString::fromUtf8("全站时间\n同步异常"));
     pushButton_StationTimeSyncAbnormol->setIcon(":/Resources/Image/Scene/stationtimesyncabnormol.png");
     pushButton_StationTimeSyncAbnormol->setFixedSize(100,110);
-    connect(pushButton_StationTimeSyncAbnormol, SIGNAL(clicked()), this, SLOT(switchAlarmPage()));
+    connect(pushButton_StationTimeSyncAbnormol, SIGNAL(clicked()), this, SLOT(slot_changeAlarmSence()));
     ui->gridLayout_3->addWidget(pushButton_StationTimeSyncAbnormol, 4, 0);
 
     pushButton_DeviceCommInterrupt = new PushButton(QString::fromUtf8("通信异常"));
     pushButton_DeviceCommInterrupt->setIcon(":/Resources/Image/Scene/devicecomminterrupt.png");
     pushButton_DeviceCommInterrupt->setFixedSize(100,110);
-    connect(pushButton_DeviceCommInterrupt, SIGNAL(clicked()), this, SLOT(switchAlarmPage()));
+    connect(pushButton_DeviceCommInterrupt, SIGNAL(clicked()), this, SLOT(slot_changeAlarmSence()));
     ui->gridLayout_3->addWidget(pushButton_DeviceCommInterrupt, 4, 1);
 
     pushButton_SoeTimestampChange = new PushButton(QString::fromUtf8("SOE时标跳变"));
     pushButton_SoeTimestampChange->setIcon(":/Resources/Image/Scene/soetimestampchange.png");
     pushButton_SoeTimestampChange->setFixedSize(100,110);
-    connect(pushButton_SoeTimestampChange, SIGNAL(clicked()), this, SLOT(switchAlarmPage()));
+    connect(pushButton_SoeTimestampChange, SIGNAL(clicked()), this, SLOT(slot_changeAlarmSence()));
     ui->gridLayout_3->addWidget(pushButton_SoeTimestampChange, 4, 2);
 
     pushButton_RemoteMeasuring = new PushButton(QString::fromUtf8("遥测跳变"));
     pushButton_RemoteMeasuring->setIcon(":/Resources/Image/Scene/remotemeasuring.png");
     pushButton_RemoteMeasuring->setFixedSize(100,110);
-    connect(pushButton_RemoteMeasuring, SIGNAL(clicked()), this, SLOT(switchAlarmPage()));
+    connect(pushButton_RemoteMeasuring, SIGNAL(clicked()), this, SLOT(slot_changeAlarmSence()));
     ui->gridLayout_3->addWidget(pushButton_RemoteMeasuring, 5, 0);
 
     pushButton_RemoteSignalling = new PushButton(QString::fromUtf8("遥信状态\n不一致"));
     pushButton_RemoteSignalling->setIcon(":/Resources/Image/Scene/remotesignalling.png");
     pushButton_RemoteSignalling->setFixedSize(100,110);
-    connect(pushButton_RemoteSignalling, SIGNAL(clicked()), this, SLOT(switchAlarmPage()));
+    connect(pushButton_RemoteSignalling, SIGNAL(clicked()), this, SLOT(slot_changeAlarmSence()));
     ui->gridLayout_3->addWidget(pushButton_RemoteSignalling, 5, 1);
 
     QLabel *label3 = new QLabel(QString::fromLocal8Bit("辅助系统智能告警"));
@@ -292,19 +292,19 @@ void MainWindow::initAlarmSence()
     pushButton_AuxiliaryPowerCheck = new PushButton(QString::fromUtf8("辅助电源\n状态检测"));
     pushButton_AuxiliaryPowerCheck->setIcon(":/Resources/Image/Scene/auxiliarypowercheck.png");
     pushButton_AuxiliaryPowerCheck->setFixedSize(100,110);
-    connect(pushButton_AuxiliaryPowerCheck, SIGNAL(clicked()), this, SLOT(switchAlarmPage()));
+    connect(pushButton_AuxiliaryPowerCheck, SIGNAL(clicked()), this, SLOT(slot_changeAlarmSence()));
     ui->gridLayout_3->addWidget(pushButton_AuxiliaryPowerCheck, 7, 0);
 
     pushButton_ElectricRunCheck = new PushButton(QString::fromUtf8("电气运行\n环境检测"));
     pushButton_ElectricRunCheck->setIcon(":/Resources/Image/Scene/electricruncheck.png");
     pushButton_ElectricRunCheck->setFixedSize(100,110);
-    connect(pushButton_ElectricRunCheck, SIGNAL(clicked()), this, SLOT(switchAlarmPage()));
+    connect(pushButton_ElectricRunCheck, SIGNAL(clicked()), this, SLOT(slot_changeAlarmSence()));
     ui->gridLayout_3->addWidget(pushButton_ElectricRunCheck, 7, 1);
 
     pushButton_PowerSystemAbnormal = new PushButton(QString::fromUtf8("电源系统异常"));
     pushButton_PowerSystemAbnormal->setIcon(":/Resources/Image/Scene/powersystemabnormal.png");
     pushButton_PowerSystemAbnormal->setFixedSize(100,110);
-    connect(pushButton_PowerSystemAbnormal, SIGNAL(clicked()), this, SLOT(switchAlarmPage()));
+    connect(pushButton_PowerSystemAbnormal, SIGNAL(clicked()), this, SLOT(slot_changeAlarmSence()));
     ui->gridLayout_3->addWidget(pushButton_PowerSystemAbnormal, 7, 2);
 }
 
@@ -343,6 +343,11 @@ void MainWindow::slot_btnLeftConfig_Clicked()
             btnsConfig.at(i)->setIcon(QIcon(IconHelper::Instance()->getPixmap(btnsConfig.at(i), true)));
         }
     }
+}
+
+void MainWindow::slot_changeAlarmSence()
+{
+
 }
 
 void MainWindow::slot_redisSubscribe()

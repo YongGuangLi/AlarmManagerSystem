@@ -471,7 +471,7 @@ background:qlineargradient(spread:pad,x1:0,y1:0,x2:0,y2:1,stop:0 #646464,stop:1 
 
 QTabBar::tab{
 height:25;
-width:45;
+width:50;
 border:1px solid #242424;
 color:#DCDCDC;
 margin:0px;

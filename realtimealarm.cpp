@@ -127,6 +127,26 @@ void RealTimeAlarm::showEvent(QShowEvent *event)
     qDeleteAll(listOriginalButton.begin(), listOriginalButton.end());
     listOriginalButton.clear();
 
+
+    QToolButton *btnSmartAlarm = new QToolButton(this);
+    btnSmartAlarm->setText("所有信号");
+    btnSmartAlarm->setCheckable(true);
+    btnSmartAlarm->setFixedSize(80, 30);
+    btnSmartAlarm->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+    connect(btnSmartAlarm, SIGNAL(clicked(bool)), this, SLOT(changeCurIaAlarmLevel()));
+    listSmartButton.push_back(btnSmartAlarm);
+    ui->verticalLayout_SmartAlarm->addWidget(btnSmartAlarm);
+
+    QToolButton *btnOrignalAlarm = new QToolButton(this);
+    btnOrignalAlarm->setText("所有信号");
+    btnOrignalAlarm->setCheckable(true);
+    btnOrignalAlarm->setFixedSize(80, 30);
+    btnOrignalAlarm->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+    connect(btnOrignalAlarm, SIGNAL(clicked(bool)), this, SLOT(changeCurOrAlarmLevel()));
+    listOriginalButton.push_back(btnOrignalAlarm);
+    ui->verticalLayout_OrignalAlarm->addWidget(btnOrignalAlarm);
+
+
     for(QMap<QString, stAlarmConfig>::iterator it = mapAlarmConfig.begin(); it != mapAlarmConfig.end(); ++it)
     {
         stAlarmConfig alarmConfig = it.value();
