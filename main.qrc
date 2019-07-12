@@ -1,0 +1,31 @@
+<RCC>
+    <qresource prefix="/">
+        <file>image/fontawesome-webfont.ttf</file>
+        <file>image/main_about.png</file>
+        <file>image/main_company.png</file>
+        <file>image/main_config.png</file>
+        <file>image/main_data.png</file>
+        <file>image/main_exit.png</file>
+        <file>image/main_help.png</file>
+        <file>image/main_main.png</file>
+        <file>image/main_person.png</file>
+        <file>image/main_logo.png</file>
+        <file>image/add.png</file>
+        <file>image/delete.png</file>
+        <file>image/modify.png</file>
+        <file>Resources/image/add.png</file>
+        <file>Resources/image/delete.png</file>
+        <file>Resources/image/fontawesome-webfont.ttf</file>
+        <file>Resources/image/main_about.png</file>
+        <file>Resources/image/main_company.png</file>
+        <file>Resources/image/main_config.png</file>
+        <file>Resources/image/main_data.png</file>
+        <file>Resources/image/main_exit.png</file>
+        <file>Resources/image/main_help.png</file>
+        <file>Resources/image/main_logo.ico</file>
+        <file>Resources/image/main_logo.png</file>
+        <file>Resources/image/main_main.png</file>
+        <file>Resources/image/main_person.png</file>
+        <file>Resources/image/modify.png</file>
+    </qresource>
+</RCC>
