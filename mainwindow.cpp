@@ -22,6 +22,15 @@ MainWindow::MainWindow(QWidget *parent) :
 
     SingletonConfig->initConfigHelper(qApp->applicationDirPath() + QDir::separator() + "SysConfig.ini");
 
+//    analysisPcapFile = new AnalysisPcapFile(this);
+//    ui->verticalLayout_mainWidget->addWidget(analysisPcapFile);
+//    QList<QString> listPcapFile;
+//    listPcapFile<<qApp->applicationDirPath() + QDir::separator() + "mms_20170907152357.pcap";
+//    listPcapFile<<qApp->applicationDirPath() + QDir::separator() + "mms_20170907151920.pcap";
+//    listPcapFile<<qApp->applicationDirPath() + QDir::separator() + "mms_20170907152230.pcap";
+//    listPcapFile<<qApp->applicationDirPath() + QDir::separator() + "mms_20170907152053.pcap";
+//    analysisPcapFile->SetPacpFileToTree(listPcapFile);
+
     //基本配置
     baseConfig = new BaseConfig(this);
     ui->gridLayout_BaseConfig->addWidget(baseConfig);
@@ -323,8 +332,6 @@ void MainWindow::slot_btnLeftMain_Clicked()
             btnsMain.at(i)->setIcon(QIcon(IconHelper::Instance()->getPixmap(btnsMain.at(i), true)));
         }
     }
-
-    ui->lab1->setText(name);
 }
 
 void MainWindow::slot_btnLeftConfig_Clicked()
@@ -347,7 +354,8 @@ void MainWindow::slot_btnLeftConfig_Clicked()
 
 void MainWindow::slot_changeAlarmSence()
 {
-
+    PushButton *button = dynamic_cast<PushButton*>(sender());
+    qDebug()<<button->text();
 }
 
 void MainWindow::slot_redisSubscribe()

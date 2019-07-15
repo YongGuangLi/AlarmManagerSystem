@@ -17,6 +17,7 @@
 #include "roleconfig.h"
 #include "realtimealarm.h"
 #include "pushbutton.h"
+#include "analysispcapfile.h"
 
 #include <QWidget>
 #include <QLayout>
@@ -47,6 +48,8 @@ public slots:
     void slot_btnLeftMain_Clicked();
     void slot_btnLeftConfig_Clicked();
 
+    void slot_changeAlarmSence();
+
     void slot_redisSubscribe();
 
 private slots:
@@ -74,7 +77,7 @@ private:
     UserConfig *userConfig;
     RoleConfig *roleConfig;
     RealTimeAlarm *realTimeAlarm;
-
+    AnalysisPcapFile *analysisPcapFile;
     QSqlDatabase db;
 
 

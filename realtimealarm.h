@@ -6,6 +6,8 @@
 #include "filterbay.h"
 #include "datamodel.h"
 #include "iconhelper.h"
+#include "alarmdetail.h"
+#include "remotecontrolwidget.h"
 
 
 #include <QWidget>
@@ -94,6 +96,10 @@ private:
     QList<QToolButton *> listOriginalButton;
 
     FilterBay *filterBay;
+
+    AlarmDetail *alarmDetail;
+
+    RemoteControlWidget *remoteControlWidget;
 };
 
 #endif // REALTIMEALARM_H

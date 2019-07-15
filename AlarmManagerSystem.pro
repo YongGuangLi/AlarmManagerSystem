@@ -29,7 +29,6 @@ SOURCES     += main.cpp \
     databasehelper.cpp \
     alarmdata.cpp \
     RtdbMessage.pb.cpp \
-    alarmreportparse.cpp \
     historyalarmquery.cpp \
     RedisHelper.cpp \
     baseconfig.cpp \
@@ -47,7 +46,17 @@ SOURCES     += main.cpp \
     realtimealarm.cpp \
     filterbay.cpp \
     versiondialog.cpp \
-    pushbutton.cpp
+    pushbutton.cpp \
+    alarmreportparse.cpp \
+    analysispcapfile.cpp \
+    alarmdetail.cpp \
+    HorizontalGraph.cpp \
+    VerticalGraph.cpp \
+    lightindicator.cpp \
+    lineedit.cpp \
+    DialogGraph.cpp \
+    SmoothCurveGenerator1.cpp \
+    remotecontrolwidget.cpp
 
 HEADERS     += iconhelper.h \
     framelesshelper.h \
@@ -79,7 +88,17 @@ HEADERS     += iconhelper.h \
     frmmessagebox.h \
     realtimealarm.h \
     filterbay.h \
-    pushbutton.h
+    pushbutton.h \
+    analysispcapfile.h \
+    alarmdetail.h \
+    HorizontalGraph.h \
+    VerticalGraph.h \
+    lightindicator.h \
+    lineedit.h \
+    DataSturct.h \
+    DialogGraph.h \
+    SmoothCurveGenerator1.h \
+    remotecontrolwidget.h
 
 FORMS       += MainWindow.ui \
     loginwindow.ui \
@@ -96,7 +115,11 @@ FORMS       += MainWindow.ui \
     frmmessagebox.ui \
     realtimealarm.ui \
     filterbay.ui \
-    versiondialog.ui
+    versiondialog.ui \
+    analysispcapfile.ui \
+    alarmdetail.ui \
+    lightindicator.ui \
+    remotecontrolwidget.ui
 
 RESOURCES   += \
     resource.qrc
@@ -112,6 +135,7 @@ INCLUDEPATH += $$PWD/protobuf-3.3.0/include
 DEPENDPATH += $$PWD/protobuf-3.3.0/include
 
 
+
 win32:CONFIG(release, debug|release): LIBS += -L$$PWD/libacl/lib/release/ -lacl_cpp
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/libacl/lib/debug/ -lacl_cpp
 else:unix: LIBS += -L$$PWD/libacl/lib/ -lacl_cpp
@@ -125,5 +149,20 @@ INCLUDEPATH += $$PWD/libacl/include
 DEPENDPATH += $$PWD/libacl/include
 
 
-#INCLUDEPATH += /home/tools/wireshark-2.0.16
-#LIBS += -L/usr/local/wireshark-2.0.16/lib -lwireshark
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/glib-2.0/lib/release/ -lglib-2.0
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/glib-2.0/lib/debug/ -lglib-2.0
+else:unix: LIBS += -L$$PWD/glib-2.0/lib/ -lglib-2.0
+
+INCLUDEPATH += $$PWD/glib-2.0/include
+DEPENDPATH += $$PWD/glib-2.0/include
+
+INCLUDEPATH += /home/tools/wireshark-1.8.10
+LIBS += -L/home/tools/wireshark-1.8.10/build/lib -lwireshark
+
+
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/libpcap-1.9.0/lib/release/ -lpcap
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/libpcap-1.9.0/lib/debug/ -lpcap
+else:unix: LIBS += -L$$PWD/libpcap-1.9.0/lib/ -lpcap
+
+INCLUDEPATH += $$PWD/libpcap-1.9.0/include
+DEPENDPATH += $$PWD/libpcap-1.9.0/include

@@ -19,10 +19,10 @@ RealTimeAlarm::RealTimeAlarm(QWidget *parent) :
     connect(SingletonAlarmData, SIGNAL(receiverOriginalAlarmData(int,stAlarmData)), this, SLOT(dispOriginalAlarmData(int, stAlarmData)));
 
     //遥控过程
-//    remoteControlWidget = new RemoteControlWidget();
+    remoteControlWidget = new RemoteControlWidget();
     //告警详情
-//    alarmDetail = new AlarmDetail();
-//    alarmDetail->addRemoteControlProcess(remoteControlWidget);
+    alarmDetail = new AlarmDetail();
+    //alarmDetail->addRemoteControlProcess(remoteControlWidget);
 
     //间隔过滤
     connect(ui->btnSmartBayFilter, SIGNAL(clicked()), this, SLOT(selectFilterBay()));
