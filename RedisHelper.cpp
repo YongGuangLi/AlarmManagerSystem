@@ -1,187 +1,240 @@
 /*
- * RedisHelper.cpp
+ * HiRedis.cpp
  *
- *  Created on: Aug 6, 2018
+ *  Created on: Sep 12, 2017
  *      Author: root
  */
 
 #include "RedisHelper.h"
 
-RedisHelper::RedisHelper(string addr, string passwd, bool retry, bool sentinel, int conn_timeout, int rw_timeout):client_pub_(NULL),client_sub_(NULL),client_con_(NULL)
-{
-    addr_ = addr;
-    passwd_ = passwd;
-    retry_ = retry;
-    sentinel_ = sentinel;
-    conn_timeout_ = conn_timeout;
-    rw_timeout_ = rw_timeout;
+RedisHelper *RedisHelper::redisHelper_ = NULL;
+
+RedisHelper::RedisHelper() {
+	// TODO Auto-generated constructor stub
+	pthread_mutex_init(&m_dataMutex,NULL);
+	m_pContextPub = NULL;
+	m_pContextSub = NULL;
+	m_bRunFlag = true;
 }
 
 RedisHelper::~RedisHelper() {
-	if(client_pub_ != NULL)
-    {
-        client_pub_->close();
-        delete client_pub_;
-        client_pub_ = NULL;
-	}
-	if(client_sub_ != NULL)
-    {
-        client_sub_->close();
-        delete client_sub_;
-        client_sub_ = NULL;
-	}
+	redisFree(m_pContextPub);
+	redisFree(m_pContextSub);
+	m_bRunFlag = false;
+	m_pContextPub = NULL;
+	m_pContextSub = NULL;
+	pthread_mutex_destroy(&m_dataMutex);
 }
 
-bool RedisHelper::open()
+RedisHelper *RedisHelper::GetInstance()
 {
-    if(client_pub_ != NULL)
+    if (redisHelper_ == NULL)
     {
-        client_pub_->close();
-        delete client_pub_;
-        client_pub_ = NULL;
-    }
-    if(client_sub_ != NULL)
-    {
-        client_sub_->close();
-        delete client_sub_;
-        client_sub_ = NULL;
-    }
-    if(client_con_ != NULL)
-    {
-        client_con_->close();
-        delete client_con_;
-        client_con_ = NULL;
+        redisHelper_ = new RedisHelper();
     }
 
-    client_con_ = new  acl::redis_client(addr_.c_str(), conn_timeout_, rw_timeout_, retry_);
-    client_con_->set_password(passwd_.c_str());
-
-    client_pub_ = new  acl::redis_client(addr_.c_str(), conn_timeout_, rw_timeout_, retry_);
-    client_pub_->set_password(passwd_.c_str());
-
-    client_sub_ = new  acl::redis_client(addr_.c_str(), conn_timeout_, rw_timeout_, retry_);
-    client_sub_->set_password(passwd_.c_str());
-
-    redis_pub_.set_client(client_pub_);
-    redis_sub_.set_client(client_sub_);
-
-    return check_connect();
+    return redisHelper_;
 }
 
-bool RedisHelper::check_connect()
+bool RedisHelper::setConnParas(const char* host,unsigned short u_port,string strPasswd  )
 {
-    bool result = false;
-    if(client_con_ == NULL)
-        return result;
+    bool result = true;
+    struct timeval timeout = { 1, 500000 };
 
-    acl::redis_connection redis_con(client_con_);         //client_pub_调用订阅函数之后就不能调用ping
-    result = redis_con.ping();
-    if(!result)
-    {
-        client_con_->close();
-        delete client_con_;
-        client_con_ = NULL;
-    }
-    return result;
-}
-
-bool RedisHelper::set(string key, string value)
-{
-	acl::redis redis(client_pub_);
-	bool result = redis.set(key.c_str(), value.c_str());
-	if(!result)
+	m_pContextSub = redisConnectWithTimeout(host,u_port,timeout);
+    if ( NULL == m_pContextSub || m_pContextSub->err != 0)
 	{
-		const acl::redis_result* res = redis.get_result();
-		printf("error: %s\r\n",res ? res->get_error() : "unknown error");
+		printf( "%s\n", m_pContextSub->errstr );
+		return false;
 	}
+    if(!strPasswd.empty())
+    {
+        redisReply *reply = (redisReply *)redisCommand(m_pContextSub,"%s %s", "AUTH", strPasswd.c_str());
+        if (reply)
+        {
+            switch (reply->type)
+            {
+                case REDIS_REPLY_ERROR:
+                    result = false;
+                    break;
+                default:
+                    break;
+            }
+            freeReplyObject(reply);
+        }
+        else
+            result = false;
+	}
+
+	m_pContextPub = redisConnectWithTimeout(host,u_port,timeout);
+    if ( NULL == m_pContextPub || m_pContextPub->err != 0)
+	{
+		printf( "%s\n", m_pContextPub->errstr );
+		return false;
+	}
+    if(!strPasswd.empty())
+    {
+        redisReply *reply = (redisReply *)redisCommand(m_pContextPub,"%s %s", "AUTH", strPasswd.c_str());
+        if (reply)
+        {
+            switch (reply->type)
+            {
+                case REDIS_REPLY_ERROR:
+                    result = false;
+                    break;
+                default:
+                    break;
+            }
+            freeReplyObject(reply);
+        }
+        else
+            result = false;
+    }
 
     return result;
 }
 
-int RedisHelper::publish(string channel, string message, string key)
+bool RedisHelper::subscribe(string channel, ...)
 {
-	if(!key.empty())
-	{
-		set(key, message);
-    }
-
-    pthread_mutex_lock(&mutex);
-	int result = redis_pub_.publish(channel.c_str(), message.c_str(), message.length());
-    pthread_mutex_unlock (&mutex);
-	if(result < 0)
-	{
-		const acl::redis_result* res = redis_pub_.get_result();
-        printf("error: %s\r\n",res ? res->get_error() : "unknown error");
-    }
-	return result;
-}
-
-int RedisHelper::publish(string channel, char* message, int length, string key)
-{
-	if(!key.empty())
-	{
-		set(key, message);
-	}
-
-    pthread_mutex_lock(&mutex);
-	int result = redis_pub_.publish(channel.c_str(), message, length);
-    pthread_mutex_unlock (&mutex);
-
-    if(result < 0)
-    {
-        const acl::redis_result* res = redis_pub_.get_result();
-        printf("error: %s\r\n",res ? res->get_error() : "unknown error");
-    }
-	return result;
-}
-
-
-int RedisHelper::subscribe(string channel, ...)
-{
-    int result = 0;
+    bool result = true;
     va_list pArgs;
-    va_start(pArgs, channel.c_str());
+    va_start(pArgs, channel);
     const char* tmpChannel = channel.c_str();
-    while(tmpChannel != NULL)
+    while (tmpChannel != NULL)
     {
-       redis_sub_.clear();
-       result = redis_sub_.subscribe(tmpChannel, NULL);
-       if(result <= 0)
-       {
-           printf("subscribe %s error(%s), ret: %d\r\n",channel.c_str(), redis_sub_.result_error(), result);
-       }
-       tmpChannel = va_arg(pArgs, char*);
+        redisReply * reply = (redisReply *)redisCommand( this->m_pContextSub, "SUBSCRIBE %s", tmpChannel);
+        if (reply)
+        {
+            switch (reply->type)
+            {
+                case REDIS_REPLY_ERROR:
+                    result = false;
+                    break;
+                default:
+                    break;
+            }
+            freeReplyObject(reply);
+        }
+        else
+            result = false;
+
+        tmpChannel = va_arg(pArgs, char*);
     }
     va_end(pArgs);
     return result;
 }
 
-int RedisHelper::unsubscribe(string channel)
+bool RedisHelper::set(string key, string value)
 {
-    int result = redis_sub_.subscribe(channel.c_str(), NULL);
-    if(result <= 0)
+    bool result = true;
+
+    pthread_mutex_lock(&m_dataMutex);
+    redisReply *reply = (redisReply *)redisCommand( this->m_pContextPub, "set %s %b" , key.c_str(),value.c_str(),(size_t) value.length());
+    pthread_mutex_unlock(&m_dataMutex);
+
+    if (reply)
     {
-        printf("subscribe %s error(%s), ret: %d\r\n",channel.c_str(), redis_sub_.result_error(), result);
+        switch (reply->type)
+        {
+            case REDIS_REPLY_ERROR:
+                result = false;
+                break;
+            default:
+                break;
+        }
+        freeReplyObject(reply);
+    }
+    else
+        result = false;
+
+    return result;
+}
+
+bool RedisHelper::publish(string channel, string message, string key)
+{
+    bool result = true;
+
+    if(key.length() > 0)
+        set(key, message);
+
+    pthread_mutex_lock(&m_dataMutex);
+    redisReply *reply = (redisReply *)redisCommand( this->m_pContextPub, "PUBLISH %s %b" , channel.c_str(), message.c_str(),  (size_t) message.length());
+    pthread_mutex_unlock(&m_dataMutex);
+
+    if (reply)
+    {
+        switch (reply->type)
+        {
+            case REDIS_REPLY_ERROR:
+                result = false;
+                break;
+            case REDIS_REPLY_INTEGER:
+//                printf("Redis integer %lld\n", reply->integer);
+                break;
+            default:
+                break;
+        }
+        freeReplyObject(reply);
+    }
+    else
+        result = false;
+
+    return result;
+}
+
+
+bool RedisHelper::getMessage(string &message)
+{
+    bool result = false;
+
+    redisReply * pReply = NULL;
+
+    if ( redisGetReply( m_pContextSub, (void **)&pReply ) == REDIS_OK )
+    {
+        if ( pReply != NULL && pReply->elements == 3 )
+        {
+            redisReply * messageReply = pReply->element[2];
+            message = string(messageReply->str,messageReply->len);
+
+            freeReplyObject( pReply );
+            pReply = NULL;
+            result = true;
+        }
+    }
+    return result;
+}
+
+bool RedisHelper::getMessage(string &message, string &channel)
+{
+    bool result = false;
+
+    redisReply * pReply = NULL;
+
+    if(redisGetReply( m_pContextSub, (void **)&pReply ) == REDIS_OK )
+    {
+        if(pReply != NULL && pReply->elements == 3 )
+        {
+            redisReply * messageReply = pReply->element[2];
+            message = string(messageReply->str,messageReply->len);
+
+            redisReply * channelReply = pReply->element[1];
+            channel = string(channelReply->str,channelReply->len);
+
+            freeReplyObject( pReply );
+            pReply = NULL;
+            result = true;
+        }
     }
     return result;
 }
 
 
-bool RedisHelper::getMessage(string& message, string channel)
+bool RedisHelper::disConnect()
 {
-	acl::string acl_channel;
-	acl::string acl_msg;
-
-	redis_sub_.clear();
-	bool result = redis_sub_.get_message(acl_channel, acl_msg);
-	if(result == true && channel.empty())
-	{
-		message = acl_msg.c_str();
-        //printf("get one message: %s, channel: %s\r\n",acl_msg.c_str(), acl_channel.c_str());
-	}
-	else if( result == true && strcmp(channel.c_str(), acl_channel.c_str()) == 0)
-	{
-		message = acl_msg.c_str();
-	}
-	return result;
+    redisFree(m_pContextPub);
+    redisFree(m_pContextSub);
+    m_pContextPub = NULL;
+    m_pContextSub = NULL;
+    return true;
 }
+

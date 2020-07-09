@@ -21,6 +21,8 @@ class ConfigHelper : public QObject
 public:
     static ConfigHelper *GetInstance();
 
+    QString channel();
+
     //读取Config.ini
     bool initConfigHelper(QString);
 

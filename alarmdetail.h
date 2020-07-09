@@ -7,7 +7,6 @@
 #include "HorizontalGraph.h"
 #include "VerticalGraph.h"
 #include "DialogGraph.h"
-#include "analysispcapfile.h"
 
 #include <QWidget>
 #include <QDesktopWidget>
@@ -59,7 +58,6 @@ private:
 
     DialogGraph *dialogGraph;
 
-    AnalysisPcapFile *analysisPcapFile;
 };
 
 #endif // ALARMDETAIL_H

@@ -20,6 +20,11 @@ int main(int argc, char *argv[])
     Log4Qt::PropertyConfigurator::configure(qApp->applicationDirPath() + QDir::separator() +"log4qt.properties");
     Log4Qt::LogManager::setHandleQtMessages(true);
 
+    SingletonConfig->initConfigHelper(qApp->applicationDirPath() + QDir::separator() + "SysConfig.ini");
+
+    if(SingletonDBHelper->open(SingletonConfig->getIpMySql(), SingletonConfig->getPortMySql(), SingletonConfig->getDbName(), SingletonConfig->getUserMysql(), SingletonConfig->getPasswdMysql()))
+        qDebug()<<QString("Mysql Connect Success:%1").arg(SingletonConfig->getIpMySql());
+
     MainWindow w;
     w.show();
 

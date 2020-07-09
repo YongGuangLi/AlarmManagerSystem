@@ -17,7 +17,6 @@
 #include "roleconfig.h"
 #include "realtimealarm.h"
 #include "pushbutton.h"
-#include "analysispcapfile.h"
 
 #include <QWidget>
 #include <QLayout>
@@ -65,36 +64,8 @@ private:
 
     RotateWidget *rotateWidget;
     VersionDialog *versionDialog;
-    HistoryAlarmQuery *historyAlarmQuery;
-
-    RedisHelper *redisHelper;
 
     bool isRunning;
-
-    BaseConfig *baseConfig;
-    StatisticAnalysis *statisticAnalysis;
-    FloatingWindow *floatingWindow;
-    UserConfig *userConfig;
-    RoleConfig *roleConfig;
-    RealTimeAlarm *realTimeAlarm;
-    AnalysisPcapFile *analysisPcapFile;
-    QSqlDatabase db;
-
-
-    PushButton *pushButton_SwitchStatusCheck;
-    PushButton *pushButton_PrimaryEquipmentAbnormal;
-    PushButton *pushButton_SecondaryEquipmentAbnormal;
-    PushButton *pushButton_SwitchActionTimeCheck;
-    PushButton *pushButton_SingleBayProtectAction;
-    PushButton *pushButton_PowerSystemAbnormal;
-    PushButton *pushButton_ElectricRunCheck;
-    PushButton *pushButton_AuxiliaryPowerCheck;
-    PushButton *pushButton_RemoteSignalling;
-    PushButton *pushButton_RemoteControlProcess;
-    PushButton *pushButton_StationTimeSyncAbnormol;
-    PushButton *pushButton_DeviceCommInterrupt;
-    PushButton *pushButton_SoeTimestampChange;
-    PushButton *pushButton_RemoteMeasuring;
 };
 
 #endif // MainWindow_H

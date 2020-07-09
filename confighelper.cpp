@@ -12,6 +12,11 @@ ConfigHelper *ConfigHelper::GetInstance()
     return configHelper;
 }
 
+QString ConfigHelper::channel()
+{
+    return qApp->applicationName();
+}
+
 
 ConfigHelper::ConfigHelper(QObject *parent) : QObject(parent)
 {
@@ -64,7 +69,7 @@ void ConfigHelper::databaseConfigWriteToFile()
     settings_->beginGroup("REDIS");
     settings_->setValue("ip", ipRedis_);
     settings_->setValue("port", portRedis);
-    settings_->setValue("user", passwdRedis_);
+    settings_->setValue("passwd", passwdRedis_);
     settings_->endGroup();
 
     settings_->sync();

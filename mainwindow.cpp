@@ -4,7 +4,7 @@
 #include "ui_mainwindow.h"
 
 MainWindow::MainWindow(QWidget *parent) :
-    QWidget(parent), isRunning(true), redisHelper(NULL),
+    QWidget(parent), isRunning(true),
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
@@ -20,27 +20,16 @@ MainWindow::MainWindow(QWidget *parent) :
     this->initLeftConfig();
     this->initAlarmSence();
 
-    SingletonConfig->initConfigHelper(qApp->applicationDirPath() + QDir::separator() + "SysConfig.ini");
-
-//    analysisPcapFile = new AnalysisPcapFile(this);
-//    ui->verticalLayout_mainWidget->addWidget(analysisPcapFile);
-//    QList<QString> listPcapFile;
-//    listPcapFile<<qApp->applicationDirPath() + QDir::separator() + "mms_20170907152357.pcap";
-//    listPcapFile<<qApp->applicationDirPath() + QDir::separator() + "mms_20170907151920.pcap";
-//    listPcapFile<<qApp->applicationDirPath() + QDir::separator() + "mms_20170907152230.pcap";
-//    listPcapFile<<qApp->applicationDirPath() + QDir::separator() + "mms_20170907152053.pcap";
-//    analysisPcapFile->SetPacpFileToTree(listPcapFile);
-
     //基本配置
-    baseConfig = new BaseConfig(this);
+    BaseConfig *baseConfig = new BaseConfig(this);
     ui->gridLayout_BaseConfig->addWidget(baseConfig);
 
     //用户配置
-    userConfig = new UserConfig(this);
+    UserConfig *userConfig = new UserConfig(this);
     ui->gridLayout_UserConfig->addWidget(userConfig);
 
     //角色配置
-    roleConfig = new RoleConfig(this);
+    RoleConfig *roleConfig = new RoleConfig(this);
     ui->gridLayout_RoleConfig->addWidget(roleConfig);
 
     //登录窗口
@@ -48,7 +37,7 @@ MainWindow::MainWindow(QWidget *parent) :
     rotateWidget->hide();
 
     //历史告警查询
-    historyAlarmQuery = new HistoryAlarmQuery(this);
+    HistoryAlarmQuery *historyAlarmQuery = new HistoryAlarmQuery(this);
     ui->verticalLayout_5->addWidget(historyAlarmQuery);
 
     //关于窗口
@@ -56,15 +45,15 @@ MainWindow::MainWindow(QWidget *parent) :
     versionDialog->hide();
 
     //统计数据查询
-    statisticAnalysis = new StatisticAnalysis(this);
+    StatisticAnalysis *statisticAnalysis = new StatisticAnalysis(this);
     ui->verticalLayout_4->addWidget(statisticAnalysis);
 
     //浮动窗口
-    floatingWindow = new FloatingWindow(this);
+    FloatingWindow *floatingWindow = new FloatingWindow(this);
     floatingWindow->hide();
 
     //实时告警
-    realTimeAlarm = new RealTimeAlarm(this);
+    RealTimeAlarm *realTimeAlarm = new RealTimeAlarm(this);
     ui->gridLayout->addWidget(realTimeAlarm);
 
     SettingDialog::getInstance(this)->initMyTitle();
@@ -81,25 +70,14 @@ MainWindow::MainWindow(QWidget *parent) :
     QtConcurrent::run(this, &MainWindow::slot_redisSubscribe);
 
 
-    db = QSqlDatabase::addDatabase("QMYSQL");
-    db.setHostName(SingletonConfig->getIpMySql());
-    db.setPort(SingletonConfig->getPortMySql());
-    db.setDatabaseName("history");
-    db.setUserName(SingletonConfig->getUserMysql());
-    db.setPassword(SingletonConfig->getPasswdMysql());
-    db.open();
     ui->btnMenu_Max->click();
 }
 
 MainWindow::~MainWindow()
 {
     isRunning = false;
-    if(redisHelper != NULL)
-    {
-        if(redisHelper->check_connect())
-            redisHelper->publish(REDIS_CHANNEL, "exit");
-        delete redisHelper;
-    }
+    SingleRedisHelp->publish(SingletonConfig->channel().toStdString(), string("exit"));
+    SingleRedisHelp->disConnect();
     delete ui;
 }
 
@@ -219,23 +197,29 @@ void MainWindow::initAlarmSence()
     label1->setAlignment(Qt::AlignHCenter | Qt::AlignBottom);
     ui->gridLayout_3->addWidget(label1, 0, 0, 1, 3);
 
-    pushButton_SwitchStatusCheck = new PushButton(QString::fromUtf8("开关分合\n状态检查"));
-    pushButton_SwitchStatusCheck->setIcon(":/Resources/Image/Scene/switchstatuscheck.png");
-    pushButton_SwitchStatusCheck->setFixedSize(100,110);
-    connect(pushButton_SwitchStatusCheck, SIGNAL(clicked()), this, SLOT(slot_changeAlarmSence()));
-    ui->gridLayout_3->addWidget(pushButton_SwitchStatusCheck, 1, 0);
+    QStringList stringList;
+    stringList<<QString::fromUtf8("开关分合\n状态检查")<<QString::fromUtf8("开关分合动\n作时间检验")<<QString::fromUtf8("一次设备异常");
 
-    pushButton_SwitchActionTimeCheck  = new PushButton(QString::fromUtf8("开关分合动\n作时间检验"));
-    pushButton_SwitchActionTimeCheck->setIcon(":/Resources/Image/Scene/switchactiontimecheck.png");
-    pushButton_SwitchActionTimeCheck->setFixedSize(100,110);
-    connect(pushButton_SwitchActionTimeCheck, SIGNAL(clicked()), this, SLOT(slot_changeAlarmSence()));
-    ui->gridLayout_3->addWidget(pushButton_SwitchActionTimeCheck, 1, 1);
-
-    pushButton_PrimaryEquipmentAbnormal = new PushButton(QString::fromUtf8("一次设备异常"));
-    pushButton_PrimaryEquipmentAbnormal->setIcon(":/Resources/Image/Scene/primaryequipmentabnormal.png");
-    pushButton_PrimaryEquipmentAbnormal->setFixedSize(100,110);
-    connect(pushButton_PrimaryEquipmentAbnormal, SIGNAL(clicked()), this, SLOT(slot_changeAlarmSence()));
-    ui->gridLayout_3->addWidget(pushButton_PrimaryEquipmentAbnormal, 1, 2);
+    for(int i = 0; i < stringList.size(); ++i)
+    {
+        PushButton *pushButton = new PushButton(stringList.at(i));
+        switch (i) {
+        case 0:
+            pushButton->setIcon(":/Resources/Image/Scene/switchstatuscheck.png");
+            break;
+        case 1:
+            pushButton->setIcon(":/Resources/Image/Scene/switchactiontimecheck.png");
+            break;
+        case 2:
+            pushButton->setIcon(":/Resources/Image/Scene/primaryequipmentabnormal.png");
+            break;
+        default:
+            break;
+        }
+        pushButton->setFixedSize(100,110);
+        connect(pushButton, SIGNAL(clicked()), this, SLOT(slot_changeAlarmSence()));
+        ui->gridLayout_3->addWidget(pushButton, 1 + i/3, i%3);
+    }
 
 
     QLabel *label2 = new QLabel(QString::fromLocal8Bit("二次设备智能告警"));
@@ -244,53 +228,45 @@ void MainWindow::initAlarmSence()
     label2->setMinimumHeight(50);
     ui->gridLayout_3->addWidget(label2, 2, 0, 1, 3);
 
-    pushButton_SecondaryEquipmentAbnormal = new PushButton(QString::fromUtf8("二次设备异常"));
-    pushButton_SecondaryEquipmentAbnormal->setIcon(":/Resources/Image/Scene/secondaryequipmentabnormal.png");
-    pushButton_SecondaryEquipmentAbnormal->setFixedSize(100,110);
-    connect(pushButton_SecondaryEquipmentAbnormal, SIGNAL(clicked()), this, SLOT(slot_changeAlarmSence()));
-    ui->gridLayout_3->addWidget(pushButton_SecondaryEquipmentAbnormal, 3, 0);
+    stringList.clear();
+    stringList<<QString::fromUtf8("二次设备异常")<<QString::fromUtf8("保护动作")<<QString::fromUtf8("遥控过程分析")<<QString::fromUtf8("全站时间\n同步异常")<<QString::fromUtf8("通信异常")<<
+                QString::fromUtf8("SOE时标跳变")<<QString::fromUtf8("遥测跳变")<<QString::fromUtf8("遥信状态\n不一致");
 
-    pushButton_SingleBayProtectAction = new PushButton(QString::fromUtf8("保护动作"));
-    pushButton_SingleBayProtectAction->setIcon(":/Resources/Image/Scene/singlebayprotectaction.png");
-    pushButton_SingleBayProtectAction->setFixedSize(100,110);
-    connect(pushButton_SingleBayProtectAction, SIGNAL(clicked()), this, SLOT(slot_changeAlarmSence()));
-    ui->gridLayout_3->addWidget(pushButton_SingleBayProtectAction, 3, 1);
-
-    pushButton_RemoteControlProcess = new PushButton(QString::fromUtf8("遥控过程分析"));
-    pushButton_RemoteControlProcess->setIcon(":/Resources/Image/Scene/remotecontrolprocess.png");
-    pushButton_RemoteControlProcess->setFixedSize(100,110);
-    connect(pushButton_RemoteControlProcess, SIGNAL(clicked()), this, SLOT(slot_changeAlarmSence()));
-    ui->gridLayout_3->addWidget(pushButton_RemoteControlProcess, 3, 2);
-
-    pushButton_StationTimeSyncAbnormol = new PushButton(QString::fromUtf8("全站时间\n同步异常"));
-    pushButton_StationTimeSyncAbnormol->setIcon(":/Resources/Image/Scene/stationtimesyncabnormol.png");
-    pushButton_StationTimeSyncAbnormol->setFixedSize(100,110);
-    connect(pushButton_StationTimeSyncAbnormol, SIGNAL(clicked()), this, SLOT(slot_changeAlarmSence()));
-    ui->gridLayout_3->addWidget(pushButton_StationTimeSyncAbnormol, 4, 0);
-
-    pushButton_DeviceCommInterrupt = new PushButton(QString::fromUtf8("通信异常"));
-    pushButton_DeviceCommInterrupt->setIcon(":/Resources/Image/Scene/devicecomminterrupt.png");
-    pushButton_DeviceCommInterrupt->setFixedSize(100,110);
-    connect(pushButton_DeviceCommInterrupt, SIGNAL(clicked()), this, SLOT(slot_changeAlarmSence()));
-    ui->gridLayout_3->addWidget(pushButton_DeviceCommInterrupt, 4, 1);
-
-    pushButton_SoeTimestampChange = new PushButton(QString::fromUtf8("SOE时标跳变"));
-    pushButton_SoeTimestampChange->setIcon(":/Resources/Image/Scene/soetimestampchange.png");
-    pushButton_SoeTimestampChange->setFixedSize(100,110);
-    connect(pushButton_SoeTimestampChange, SIGNAL(clicked()), this, SLOT(slot_changeAlarmSence()));
-    ui->gridLayout_3->addWidget(pushButton_SoeTimestampChange, 4, 2);
-
-    pushButton_RemoteMeasuring = new PushButton(QString::fromUtf8("遥测跳变"));
-    pushButton_RemoteMeasuring->setIcon(":/Resources/Image/Scene/remotemeasuring.png");
-    pushButton_RemoteMeasuring->setFixedSize(100,110);
-    connect(pushButton_RemoteMeasuring, SIGNAL(clicked()), this, SLOT(slot_changeAlarmSence()));
-    ui->gridLayout_3->addWidget(pushButton_RemoteMeasuring, 5, 0);
-
-    pushButton_RemoteSignalling = new PushButton(QString::fromUtf8("遥信状态\n不一致"));
-    pushButton_RemoteSignalling->setIcon(":/Resources/Image/Scene/remotesignalling.png");
-    pushButton_RemoteSignalling->setFixedSize(100,110);
-    connect(pushButton_RemoteSignalling, SIGNAL(clicked()), this, SLOT(slot_changeAlarmSence()));
-    ui->gridLayout_3->addWidget(pushButton_RemoteSignalling, 5, 1);
+    for(int i = 0; i < stringList.size(); ++i)
+    {
+        PushButton *pushButton = new PushButton(stringList.at(i));
+        switch (i) {
+        case 0:
+            pushButton->setIcon(":/Resources/Image/Scene/secondaryequipmentabnormal.png");
+            break;
+        case 1:
+            pushButton->setIcon(":/Resources/Image/Scene/singlebayprotectaction.png");
+            break;
+        case 2:
+            pushButton->setIcon(":/Resources/Image/Scene/remotecontrolprocess.png");
+            break;
+        case 3:
+            pushButton->setIcon(":/Resources/Image/Scene/stationtimesyncabnormol.png");
+            break;
+        case 4:
+            pushButton->setIcon(":/Resources/Image/Scene/devicecomminterrupt.png");
+            break;
+        case 5:
+            pushButton->setIcon(":/Resources/Image/Scene/soetimestampchange.png");
+            break;
+        case 6:
+            pushButton->setIcon(":/Resources/Image/Scene/remotemeasuring.png");
+            break;
+        case 7:
+            pushButton->setIcon(":/Resources/Image/Scene/remotesignalling.png");
+            break;
+        default:
+            break;
+        }
+        pushButton->setFixedSize(100,110);
+        connect(pushButton, SIGNAL(clicked()), this, SLOT(slot_changeAlarmSence()));
+        ui->gridLayout_3->addWidget(pushButton, 3 + i/3, i%3);
+    }
 
     QLabel *label3 = new QLabel(QString::fromLocal8Bit("辅助系统智能告警"));
     label3->setStyleSheet("color: white; font-size: 20px;");
@@ -298,23 +274,29 @@ void MainWindow::initAlarmSence()
     label3->setMinimumHeight(50);
     ui->gridLayout_3->addWidget(label3, 6, 0, 1, 3);
 
-    pushButton_AuxiliaryPowerCheck = new PushButton(QString::fromUtf8("辅助电源\n状态检测"));
-    pushButton_AuxiliaryPowerCheck->setIcon(":/Resources/Image/Scene/auxiliarypowercheck.png");
-    pushButton_AuxiliaryPowerCheck->setFixedSize(100,110);
-    connect(pushButton_AuxiliaryPowerCheck, SIGNAL(clicked()), this, SLOT(slot_changeAlarmSence()));
-    ui->gridLayout_3->addWidget(pushButton_AuxiliaryPowerCheck, 7, 0);
+    stringList.clear();
+    stringList<<QString::fromUtf8("辅助电源\n状态检测")<<QString::fromUtf8("电气运行\n环境检测")<<QString::fromUtf8("电源系统异常");
 
-    pushButton_ElectricRunCheck = new PushButton(QString::fromUtf8("电气运行\n环境检测"));
-    pushButton_ElectricRunCheck->setIcon(":/Resources/Image/Scene/electricruncheck.png");
-    pushButton_ElectricRunCheck->setFixedSize(100,110);
-    connect(pushButton_ElectricRunCheck, SIGNAL(clicked()), this, SLOT(slot_changeAlarmSence()));
-    ui->gridLayout_3->addWidget(pushButton_ElectricRunCheck, 7, 1);
-
-    pushButton_PowerSystemAbnormal = new PushButton(QString::fromUtf8("电源系统异常"));
-    pushButton_PowerSystemAbnormal->setIcon(":/Resources/Image/Scene/powersystemabnormal.png");
-    pushButton_PowerSystemAbnormal->setFixedSize(100,110);
-    connect(pushButton_PowerSystemAbnormal, SIGNAL(clicked()), this, SLOT(slot_changeAlarmSence()));
-    ui->gridLayout_3->addWidget(pushButton_PowerSystemAbnormal, 7, 2);
+    for(int i = 0; i < stringList.size(); ++i)
+    {
+        PushButton *pushButton = new PushButton(stringList.at(i));
+        switch (i) {
+        case 0:
+            pushButton->setIcon(":/Resources/Image/Scene/auxiliarypowercheck.png");
+            break;
+        case 1:
+            pushButton->setIcon(":/Resources/Image/Scene/electricruncheck.png");
+            break;
+        case 2:
+            pushButton->setIcon(":/Resources/Image/Scene/powersystemabnormal.png");
+            break;
+        default:
+            break;
+        }
+        pushButton->setFixedSize(100,110);
+        connect(pushButton, SIGNAL(clicked()), this, SLOT(slot_changeAlarmSence()));
+        ui->gridLayout_3->addWidget(pushButton, 7 + i/3, i%3);
+    }
 }
 
 void MainWindow::slot_btnLeftMain_Clicked()
@@ -360,27 +342,20 @@ void MainWindow::slot_changeAlarmSence()
 
 void MainWindow::slot_redisSubscribe()
 {
-    redisHelper = new RedisHelper(QString("%1:%2").arg(SingletonConfig->getIpRedis()).arg(SingletonConfig->getPortRedis()).toStdString(), SingletonConfig->getPasswdRedis().toStdString());
+    if(SingleRedisHelp->setConnParas(SingletonConfig->getIpRedis().toStdString().c_str(),SingletonConfig->getPortRedis(), SingletonConfig->getPasswdRedis().toStdString()))
+        qDebug()<<QString("Redis Connect Success:%1").arg(SingletonConfig->getIpRedis());
+    else
+        qWarning()<<QString("Redis Connect Failure:%1").arg(SingletonConfig->getIpRedis());
+
+    if(SingleRedisHelp->subscribe(SingletonConfig->channel().toStdString(),  NULL))
+        qDebug()<<QString("Redis Subscribe Success:%1").arg(SingletonConfig->channel());
+    else
+        qWarning()<<QString("Redis Subscribe Failure:%1").arg(SingletonConfig->channel());
 
     while(isRunning)
     {
-        if(!redisHelper->check_connect())
-        {
-            if(redisHelper->open())
-            {
-                qDebug()<<QString("Redis 连接成功:%1:%2").arg(SingletonConfig->getIpRedis()).arg(SingletonConfig->getPortRedis());
-                if(redisHelper->subscribe(REDIS_CHANNEL, NULL) >= 1)
-                    qDebug()<<QString("Redis 订阅成功:%1").arg(REDIS_CHANNEL);
-            }else
-            {
-                qDebug()<<QString("Redis 连接失败:%1:%2").arg(SingletonConfig->getIpRedis()).arg(SingletonConfig->getPortRedis());
-                QThread::sleep(1);
-                continue;
-            }
-        }
-
         string message;
-        if(redisHelper->getMessage(message))
+        if(SingleRedisHelp->getMessage(message))
         {
             RtdbMessage rtdbMessage;
             if(rtdbMessage.ParseFromString(message))
@@ -432,12 +407,7 @@ void MainWindow::slot_redisSubscribe()
                     break;
                 }
             }
-            else if(message != "exit")
-            {
-                qWarning()<<"ParseFromString Failure";
-            }
         }
-        QThread::usleep(1000);
     }
 }
 

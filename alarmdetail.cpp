@@ -20,8 +20,6 @@ AlarmDetail::AlarmDetail(QWidget *parent) :
     dialogGraph = new DialogGraph();
     ui->gridLayout_7->addWidget(dialogGraph);
 
-    analysisPcapFile = new AnalysisPcapFile();
-    ui->gridLayout_8->addWidget(analysisPcapFile);
 
     showOtherPage(false);
 }
@@ -92,7 +90,6 @@ AlarmReportParse AlarmDetail::showAlarmDetail(QString fileName)
     verticalGraph->InitData(listXYAxisTimeValue, fileName);
     dialogGraph->InitData(listDialogData, fileName);
 
-    analysisPcapFile->SetFileToTree(alarmReportParse.getPcapFile());
 
     ui->tabWidget->setCurrentIndex(0);
 

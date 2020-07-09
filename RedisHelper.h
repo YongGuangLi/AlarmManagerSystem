@@ -1,66 +1,65 @@
 /*
- * RedisHelper.h
+ * HiRedis.h
  *
- *  Created on: Aug 6, 2018
+ *  Created on: Sep 12, 2017
  *      Author: root
  */
 
-#ifndef REDISHELPER_H_
-#define REDISHELPER_H_
-
-#include "acl_cpp/redis/redis.hpp"
-#include "acl_cpp/redis/redis_client.hpp"
-#include "acl_cpp/redis/redis_pubsub.hpp"
-#include "acl_cpp/redis/redis_connection.hpp"
-
-#include <iostream>
+#ifndef HIREDIS_H_
+#define HIREDIS_H_
 #include <string>
-
+#include <string.h>
+#include <vector>
+#include <map>
+#include "hiredis.h"
+#include <pthread.h>
+#include <list>
+#include <alloca.h>
+#include <assert.h>
 
 using namespace std;
 
-#define REDIS_CHANNEL "channel"
 
+#define REDIS_DATATRANSMISSION "DataTransmission"
+#define REDIS_TCPSERVER        "TcpServer"
+#define REDIS_COLLECTDATA      "SyslogCollector"
+#define REDIS_PROCESSMANAGE    "Processmanage"
+#define DEVICEASSET            "DeviceAsset"
+#define SURICATA               "suricata"
 
-class RedisHelper {
+#define SingleRedisHelp RedisHelper::GetInstance()
+
+class RedisHelper
+{
 public:
-    RedisHelper(string addr, string passwd, bool retry = false, bool sentinel = false, int conn_timeout = 60, int rw_timeout = 30);
-	virtual ~RedisHelper();
+    static RedisHelper *GetInstance();
 
-    bool open();
+public:
+    bool setConnParas(const char* host,unsigned short u_port,string strPasswd="");
 
-    bool check_connect();
+    bool subscribe(string channel, ...);
 
-	bool set(string key, string value);
+    bool set(string key, string value);
 
-    //返回订阅者数量， -1出错
-    int publish(string channel, string message, string key = "");
+    bool publish(string channel, string message, string key = "");
 
-    //返回订阅者数量， -1出错
-    int publish(string channel, char* message, int length, string key = "");
+    bool getMessage(string& message);
 
-    //返回最后一个channel参数订阅者数量， -1出错，   最后1个参数需要传入NULL,用于判断结束
-    int subscribe(string channel, ...);
+    bool getMessage(string& message, string& channel);
 
-    int unsubscribe(string channel);
-
-    //调用此函数,必须已有channel被订阅，  获取指定channel的消息，不传则获取所有已订阅的消息
-    bool getMessage(string& message, string channel = "");
+    bool disConnect();
 private:
-    acl::redis_client *client_con_;
-	acl::redis_client *client_pub_;
-	acl::redis_client *client_sub_;
-	acl::redis_pubsub redis_pub_;
-	acl::redis_pubsub redis_sub_;
+    static RedisHelper * redisHelper_;
 
-    string addr_;
-    string passwd_;
-    bool retry_;
-    bool sentinel_;
-    int conn_timeout_;
-    int rw_timeout_;
+    RedisHelper();
+    virtual ~RedisHelper();
+private:
+	redisContext * m_pContextSub;
+	redisContext * m_pContextPub;
 
-    pthread_mutex_t mutex;
+	pthread_mutex_t  m_dataMutex; //线程锁
+
+	bool m_bRunFlag;
 };
 
-#endif /* REDISHELPER_H_ */
+#endif /* HIREDIS_H_ */

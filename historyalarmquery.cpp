@@ -22,31 +22,14 @@ void HistoryAlarmQuery::initForm()
 
     ui->dateTimeEdit_end->setDisplayFormat("yyyy-MM-dd hh:mm:ss");
     ui->dateTimeEdit_end->setCalendarPopup(true);
-    columnNames.clear();
-    columnWidths.clear();
+
+    columnNames<<"防区号"<<"防区名称"<<"设备IP"<<"日志类型"<<"事件内容"<<"触发时间"<<"告警详情"<<"告警数据"<<"告警图像";
+
+    columnWidths<<70<<120<<120<<80<<150<<160<<160<<160<<160;
 
     tableName = "dtxy_alarm_2018_10_10";
+
     countName = "id";
-
-    columnNames.append("防区号");
-    columnNames.append("防区名称");
-    columnNames.append("设备IP");
-    columnNames.append("日志类型");
-    columnNames.append("事件内容");
-    columnNames.append("触发时间");
-    columnNames.append("告警详情");
-    columnNames.append("告警数据");
-    columnNames.append("告警图像");
-
-    columnWidths.append(70);
-    columnWidths.append(120);
-    columnWidths.append(120);
-    columnWidths.append(80);
-    columnWidths.append(150);
-    columnWidths.append(160);
-    columnWidths.append(160);
-    columnWidths.append(160);
-    columnWidths.append(160);
 
     //设置需要显示数据的表格和翻页的按钮
     dbPage = new DbPage(this);

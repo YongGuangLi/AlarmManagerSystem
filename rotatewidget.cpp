@@ -9,9 +9,9 @@ RotateWidget::RotateWidget(QWidget *parent)
     this->setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
     this->setAttribute(Qt::WA_TranslucentBackground);
 
-	// 给窗口设置rotateValue属性;
-	this->setProperty("rotateValue", 0);
-	initRotateWindow();
+    // 给窗口设置rotateValue属性;
+    this->setProperty("rotateValue", 0);
+    initRotateWindow();
 }
 
 RotateWidget::~RotateWidget()
@@ -36,7 +36,7 @@ void RotateWidget::initRotateWindow()
     connect(m_modifyPasswdWindow->signalMapper, SIGNAL(mapped(int)), this, SLOT(onRotateWindow(int)));
     connect(m_modifyPasswdWindow, SIGNAL(signal_btnClose_Clicked()), this, SLOT(hide()));
 
-	this->addWidget(m_loginWindow);
+    this->addWidget(m_loginWindow);
     this->addWidget(m_loginNetSetWindow);
     this->addWidget(m_modifyPasswdWindow);
 
